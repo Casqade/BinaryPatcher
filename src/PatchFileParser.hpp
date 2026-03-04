@@ -7,6 +7,7 @@
 #include "Patches/NumberPatch.hpp"
 #include "Patches/StringPatch.hpp"
 
+#include <limits>
 #include <memory>
 #include <sstream>
 
