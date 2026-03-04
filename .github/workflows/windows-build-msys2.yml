@@ -1,0 +1,62 @@
+name: Build (Windows MSYS2)
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - '**/README.md'
+      - '.github/workflows/windows-build-clang.yml'
+      - '.github/workflows/windows-build-msvc.yml'
+      - '**/reference.patch'
+
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-msys2:
+    runs-on: windows-latest
+
+    defaults:
+      run:
+        shell: msys2 {0}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+        - { sys: mingw64, env: x86_64, cc: gcc, cxx: g++ }
+        - { sys: mingw64, env: x86_64, cc: clang, cxx: clang++ }
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup MSYS2
+      uses: msys2/setup-msys2@v2.22.0
+      with:
+        msystem: ${{ matrix.config.sys }}
+        install: >-
+          mingw-w64-${{ matrix.config.env }}-gcc
+          mingw-w64-${{ matrix.config.env }}-clang
+
+
+    - name: Set reusable strings
+      id: strings
+      run: |
+        echo "source-dir=$(cygpath -u '${{ github.workspace }}')" >> "$GITHUB_OUTPUT"
+
+
+    - name: Build
+      run: |
+        cd ${{ steps.strings.outputs.source-dir }}\src
+        ${{ matrix.config.cxx }} --std=c++17 -static BinaryPatcher.cpp -o BinaryPatcher-${{ matrix.config.cc }}.exe
+
+
+    - name: Upload Build Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: 'BinaryPatcher-${{ matrix.config.cc }}'
+        path: '${{ github.workspace }}\BinaryPatcher-${{ matrix.config.cc }}.exe'
+        if-no-files-found: error
+        compression-level: 9

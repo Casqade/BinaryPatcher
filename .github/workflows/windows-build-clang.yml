@@ -1,0 +1,47 @@
+name: Build (Windows Clang)
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - '**/README.md'
+      - '.github/workflows/windows-build-msvc.yml'
+      - '.github/workflows/windows-build-msys2.yml'
+      - '**/reference.patch'
+
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-msvc:
+    runs-on: ${{ matrix.config.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+        - {
+            os: windows-latest,
+            cc: "clang-cl",
+            cxx: "clang-cl"
+          }
+
+    steps:
+    - uses: actions/checkout@v4
+
+
+    - name: Build
+      run: |
+        cd ${{ github.workspace }}\src
+        clang-cl /std:c++17 /EHsc BinaryPatcher.cpp
+
+
+    - name: Upload Build Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: 'BinaryPatcher-clang-cl'
+        path: '${{ github.workspace }}\src\BinaryPatcher.exe'
+        if-no-files-found: error
+        compression-level: 9
