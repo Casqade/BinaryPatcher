@@ -1,0 +1,76 @@
+//  comments start with '//' and are ignored
+
+//  trailing comments aren't allowed
+//  in multiline strings
+
+
+//  binary size is given in bytes (decimal)
+binaryName.exe 2765834
+
+
+ReferencePatch
+# Multiline
+# patch
+# description
+{
+  binary
+    0x123456 // offset where to apply
+      AB CD EF // original bytes
+      12 34 56 // replaced bytes
+
+  flags
+    0x123456, 0xabcdef // you can define several offsets
+//      when patching, ORs value with whatever bytes are at the offset(s)
+//      when restoring, ANDs negated value bits with bytes in binary
+      0x20
+
+  message
+    # just a multiline
+    # message to print
+    # during prompting phase
+    #
+
+//  string <max length> [url]
+//  - optional url argument
+//    enables url verification for user input
+//  - to disable user string prompt,
+//    leave identifier empty
+//    (just # without any subsequent text in line)
+  string 64 url
+    # string to patch
+      0x123456, 0xabcdef
+        # original string
+//        strings can be multiline but there must be an empty line or
+//        a comment which denotes the end of string value
+        # replaced string
+//        ^ default string to use when no user input is supplied
+
+//  number <type> [min <minValue>] [max <maxValue>]
+//  - recognized types:
+//     int8  int16  int32  int64
+//    uint8 uint16 uint32 uint64
+//    float double
+//  - optional min & max arguments define
+//    allowed value range for user input
+  number uint32 min 32 max 32768
+    # human readable number identifier
+      0x123456, 0xabcdef
+        1920 // original number
+        800  // default number
+
+//  prefixing any patch or patch group
+//  with '-' disables it
+  -binary
+    0x123456
+//      you can describe why
+      AB CD EF
+//      this patch is disabled
+      12 34 56
+}
+
+-DisabledReferencePatch
+# All patches defined in this group
+# will be ignored
+{
+// ...
+}
