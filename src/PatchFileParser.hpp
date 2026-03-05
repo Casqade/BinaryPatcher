@@ -235,9 +235,24 @@ PatchFileParser::parseBinaryEntry()
   auto originalBytes = ParseHexByteSequence(currentLine());
   advance();
 
+  for ( const auto& offset : offsets )
+    if ( offset + originalBytes.size() > mExecutableSize )
+      throw std::runtime_error(
+        "Line " + std::to_string(mCurrentLine) +
+        ": " + std::to_string(originalBytes.size()) +
+        " bytes at offset " + std::to_string(offset) +
+        " exceed executable size (" + std::to_string(mExecutableSize) + ")" );
+
   skipEmptyAndComments();
   auto modifiedBytes = ParseHexByteSequence(currentLine());
   advance();
+
+  if ( modifiedBytes.size() != originalBytes.size() )
+    throw std::runtime_error(
+        "Line " + std::to_string(mCurrentLine) +
+        ": Modified byte count must be equal to original bytes count (expected " + std::to_string(originalBytes.size()) +
+        ", got " + std::to_string(modifiedBytes.size()) + ")" );
+
 
   return std::make_unique <BinaryPatch> (
     std::move(offsets),
@@ -270,6 +285,14 @@ PatchFileParser::parseFlagsEntry()
 
   uint64_t mask = std::stoull(hexPart, nullptr, 16);
   advance();
+
+  for ( const auto& offset : offsets )
+    if ( offset + byteWidth > mExecutableSize )
+      throw std::runtime_error(
+        "Line " + std::to_string(mCurrentLine) +
+        ": " + std::to_string(byteWidth) +
+        "-byte long flags at offset " + std::to_string(offset) +
+        " exceed executable size (" + std::to_string(mExecutableSize) + ")" );
 
   return std::make_unique <FlagsPatch> (
     std::move(offsets), mask, byteWidth );
@@ -314,6 +337,14 @@ PatchFileParser::parseStringEntry(
   skipEmptyAndComments();
   auto offsets = ParseOffsetList(currentLine());
   advance();
+
+  for ( const auto& offset : offsets )
+    if ( offset + maxLength > mExecutableSize )
+      throw std::runtime_error(
+        "Line " + std::to_string(mCurrentLine) +
+        ": Max string size " + std::to_string(maxLength) +
+        " at offset " + std::to_string(offset) +
+        " will exceed executable size (" + std::to_string(mExecutableSize) + ")" );
 
   skipEmptyAndComments();
   auto originalString = parseMultilineString();
@@ -451,6 +482,14 @@ PatchFileParser::parseNumberEntry(
   skipEmptyAndComments();
   auto offsets = ParseOffsetList(currentLine());
   advance();
+
+  for ( const auto& offset : offsets )
+    if ( offset + rangeMin.byteWidth() > mExecutableSize )
+      throw std::runtime_error(
+        "Line " + std::to_string(mCurrentLine) +
+        ": " + std::to_string(rangeMin.byteWidth()) +
+        "-byte number at offset " + std::to_string(offset) +
+        " exceeds executable size (" + std::to_string(mExecutableSize) + ")" );
 
   skipEmptyAndComments();
   auto originalNum = rangeMin;
