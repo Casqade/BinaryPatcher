@@ -4,8 +4,10 @@
 //  in multiline strings
 
 
-//  binary size is given in bytes (decimal)
-binaryName.exe 11259439
+//  binary_path binary_size [<skip> <no> <yes>]
+//  binary_size is given in bytes (decimal)
+//  yes/no/skip defines operation mode order in user prompts, default is skip/no/yes
+binaryName.exe 11259439 yes no skip
 
 
 ReferencePatch

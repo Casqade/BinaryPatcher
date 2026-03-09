@@ -83,7 +83,7 @@ main(
 
 
   for ( auto& group : patchFile.groups )
-    group.prompt();
+    group.prompt(parser.operationOrder());
 
 
   executable.flags = BinaryFile::Read | BinaryFile::Write;

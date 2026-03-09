@@ -7,6 +7,7 @@
 #include "Patches/NumberPatch.hpp"
 #include "Patches/StringPatch.hpp"
 
+#include <set>
 #include <limits>
 #include <memory>
 #include <sstream>
@@ -14,6 +15,13 @@
 
 class PatchFileParser
 {
+  Patch::OperationModeOrder mOperationOrder
+  {
+    Patch::OperationMode::Skip,
+    Patch::OperationMode::Restore,
+    Patch::OperationMode::Modify,
+  };
+
   std::vector <std::string> mLines;
   size_t mCurrentLine {};
   size_t mExecutableSize {};
@@ -22,6 +30,11 @@ class PatchFileParser
 public:
 
   PatchFile parse( const std::string& filename );
+
+  const Patch::OperationModeOrder& operationOrder() const
+  {
+    return mOperationOrder;
+  }
 
 
 private:
@@ -38,6 +51,7 @@ private:
 
   void skipEmptyAndComments();
   std::string parseMultilineString();
+  Patch::OperationModeOrder parseOperationOrder( std::istringstream& ) const;
 
   std::unique_ptr <Patch> parseBinaryEntry();
   std::unique_ptr <Patch> parseFlagsEntry();
@@ -615,6 +629,79 @@ PatchFileParser::parseGroup()
 }
 
 inline
+Patch::OperationModeOrder
+PatchFileParser::parseOperationOrder(
+  std::istringstream& stream ) const
+{
+  auto operationOrder = mOperationOrder;
+
+  std::string operationMode;
+
+  using OperationMode = Patch::OperationMode;
+  std::set <OperationMode> operationModes
+  {
+    OperationMode::Skip,
+    OperationMode::Modify,
+    OperationMode::Restore,
+  };
+
+  for ( size_t i {}; i < 3; ++i )
+  {
+    if ( stream >> operationMode )
+    {
+      if ( operationMode == "yes" )
+      {
+        if ( operationModes.count(OperationMode::Modify) == 0 )
+          throw std::runtime_error(
+            "Line " + std::to_string(mCurrentLine + 1) + ": "
+            "Duplicate operation mode 'yes'" );
+
+        operationOrder[i] = OperationMode::Modify;
+        operationModes.erase(OperationMode::Modify);
+        continue;
+      }
+
+      else if ( operationMode == "no" )
+      {
+        if ( operationModes.count(OperationMode::Restore) == 0 )
+          throw std::runtime_error(
+            "Line " + std::to_string(mCurrentLine + 1) + ": "
+            "Duplicate operation mode 'no'" );
+
+        operationOrder[i] = OperationMode::Restore;
+        operationModes.erase(OperationMode::Restore);
+        continue;
+      }
+
+      else if ( operationMode == "skip" )
+      {
+        if ( operationModes.count(OperationMode::Skip) == 0 )
+          throw std::runtime_error(
+            "Line " + std::to_string(mCurrentLine + 1) + ": "
+            "Duplicate operation mode 'skip'" );
+
+        operationOrder[i] = OperationMode::Skip;
+        operationModes.erase(OperationMode::Skip);
+        continue;
+      }
+
+      throw std::runtime_error(
+        "Line " + std::to_string(mCurrentLine + 1) + ": "
+        "Invalid operation mode '" + operationMode + "'" );
+    }
+
+    if ( i == 0 )
+      break;
+
+    throw std::runtime_error(
+      "Line " + std::to_string(mCurrentLine + 1) + ": "
+      "All 3 operation modes must be defined (yes/no/skip)" );
+  }
+
+  return operationOrder;
+}
+
+inline
 PatchFile
 PatchFileParser::parse(
   const std::string& filename )
@@ -648,6 +735,7 @@ PatchFileParser::parse(
       "Executable size can't be zero" );
 
   mExecutableSize = result.executableSize;
+  mOperationOrder = parseOperationOrder(stream);
 
   advance();
 

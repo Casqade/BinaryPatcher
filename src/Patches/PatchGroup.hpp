@@ -15,7 +15,7 @@ struct PatchGroup
   Patch::OperationMode operationMode {};
 
 
-  void prompt()
+  void prompt( const Patch::OperationModeOrder& modeOrder )
   {
     if ( entries.empty() == true )
       return;
@@ -32,7 +32,7 @@ struct PatchGroup
       description;
 
     operationMode =
-      Patch::PromptOperationMode(fullDescription);
+      Patch::PromptOperationMode(fullDescription, modeOrder);
 
     if ( operationMode != Patch::OperationMode::Modify )
       return;

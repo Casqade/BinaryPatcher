@@ -2,6 +2,7 @@
 
 #include "../NumberValue.hpp"
 
+#include <array>
 #include <fstream>
 #include <cstdint>
 #include <string>
@@ -19,9 +20,12 @@ public:
   enum class OperationMode
   {
     Skip,
-    Modify,
     Restore,
+    Modify,
   };
+
+  using OperationModeOrder = std::array <OperationMode, 3>;
+
 
   virtual ~Patch() = default;
 
@@ -57,7 +61,8 @@ public:
 
 
   static OperationMode PromptOperationMode(
-    const std::string& description );
+    const std::string& description,
+    const OperationModeOrder& modeOrder );
 
   static void PromptNumber(
     NumberValue& number,
@@ -151,44 +156,58 @@ Patch::ToBytes(
 inline
 Patch::OperationMode
 Patch::PromptOperationMode(
-  const std::string& description )
+  const std::string& description,
+  const OperationModeOrder& modeOrder )
 {
   OperationMode mode {};
+
+  struct ModeStrings
+  {
+    std::string name;
+    std::string shortName;
+    std::string description;
+  };
+
+  const static ModeStrings modeStrings[]
+  {
+    { "skip", "s", " (default, don't write to executable)" },
+    { "no", "n", " (restore bytes from original binary)" },
+    { "yes", "y", "" },
+  };
+
+  auto modeToStrings =
+  [] ( OperationMode mode ) -> const ModeStrings&
+  {
+    auto modeIndex = static_cast <size_t> (mode);
+    return modeStrings[modeIndex];
+  };
 
   while ( true )
   {
     std::cout << description << "\n\n"
       "  Enable? (1/2/3):\n"
-      "    1. skip (default, don't write to executable)\n"
-      "    2. no (restore bytes from original binary)\n"
-      "    3. yes\n";
+      "    1. " << modeToStrings(modeOrder[0]).name << modeToStrings(modeOrder[0]).description << "\n"
+      "    2. " << modeToStrings(modeOrder[1]).name << modeToStrings(modeOrder[1]).description << "\n"
+      "    3. " << modeToStrings(modeOrder[2]).name << modeToStrings(modeOrder[2]).description << "\n";
 
     std::string userInput {};
     std::getline(std::cin, userInput);
 
-    if (  userInput.empty() == true ||
-          userInput == "1" ||
-          userInput == "s" ||
-          userInput == "skip" )
+    if ( userInput.empty() == true )
     {
-      mode = OperationMode::Skip;
+      mode = modeOrder[0];
       break;
     }
 
-    if (  userInput == "2" ||
-          userInput == "n" ||
-          userInput == "no" )
+    for ( size_t i {}; i < modeOrder.size(); ++i )
     {
-      mode = OperationMode::Restore;
-      break;
-    }
-
-    if (  userInput == "3" ||
-          userInput == "y" ||
-          userInput == "yes" )
-    {
-      mode = OperationMode::Modify;
-      break;
+      if (  userInput == std::to_string(i + 1) ||
+            userInput == modeStrings[(size_t) modeOrder[i]].shortName ||
+            userInput == modeStrings[(size_t) modeOrder[i]].name )
+      {
+        std::cout << "\n";
+        return modeOrder[i];
+      }
     }
 
     std::cout << "ERROR: Unrecognized input: '" << userInput << "'\n\n";
