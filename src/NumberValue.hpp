@@ -323,6 +323,10 @@ NumberValue::setFromString(
       }
       else
       {
+        if ( str.size() > 0 && str[0] == '-' )
+          throw std::runtime_error(
+            "Can't initialize unsigned integer with negative value" );
+
         uint64_t value = std::stoull(str, nullptr, 0);
         std::memcpy(mStorage, &value, mByteCount);
       }
@@ -371,6 +375,10 @@ NumberValue::setFromString(
       }
       else
       {
+        if ( str.size() > 0 && str[0] == '-' )
+          throw std::runtime_error(
+            "Can't initialize unsigned integer with negative value" );
+
         uint64_t value = std::stoull(str, nullptr, 0);
 
         if ( value >= min.asUint64() && value <= max.asUint64() )
