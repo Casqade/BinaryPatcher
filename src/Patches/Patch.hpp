@@ -202,8 +202,8 @@ Patch::PromptOperationMode(
     for ( size_t i {}; i < modeOrder.size(); ++i )
     {
       if (  userInput == std::to_string(i + 1) ||
-            userInput == modeStrings[(size_t) modeOrder[i]].shortName ||
-            userInput == modeStrings[(size_t) modeOrder[i]].name )
+            userInput == modeToStrings(modeOrder[i]).shortName ||
+            userInput == modeToStrings(modeOrder[i]).name )
       {
         std::cout << "\n";
         return modeOrder[i];
