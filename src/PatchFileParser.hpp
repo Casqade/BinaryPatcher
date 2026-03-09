@@ -196,7 +196,18 @@ PatchFileParser::parseMultilineString()
 
   while ( atEnd() == false )
   {
-    const auto line = currentLine();
+    if ( mCurrentLine >= mLines.size() )
+      break;
+
+    auto line = mLines[mCurrentLine];
+
+    const auto start = line.find_first_not_of(" \t\r\n");
+
+    if ( start == std::string::npos )
+      break;
+
+    line = line.substr(start);
+
 
     if ( line.empty() || line[0] != '#' )
       break;
