@@ -11,6 +11,7 @@ class FlagsPatch : public Patch
 
   uint64_t mMask;
   size_t mByteCount;
+  bool mUnset;
 
 
 public:
@@ -18,10 +19,12 @@ public:
   FlagsPatch(
     std::vector <uint64_t> offsets,
     uint64_t mask,
-    size_t byteCount )
+    size_t byteCount,
+    bool unset )
     : mOffsets(std::move(offsets))
     , mMask(mask)
     , mByteCount(byteCount)
+    , mUnset(unset)
   {}
 
   void apply( std::fstream& file, OperationMode mode ) const override
@@ -41,11 +44,17 @@ public:
       switch (mode)
       {
         case OperationMode::Modify:
-          value |= mMask;
+          if ( mUnset == true )
+            value &= ~mMask;
+          else
+            value |= mMask;
           break;
 
         case OperationMode::Restore:
-          value &= ~mMask;
+          if ( mUnset == true )
+            value |= mMask;
+          else
+            value &= ~mMask;
           break;
 
         default:

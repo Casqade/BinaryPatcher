@@ -20,6 +20,8 @@ ReferencePatch
       AB CD EF // original bytes
       12 34 56 // replaced bytes
 
+//  flags [unset]
+//  - unset mode is equivalent of swapping modify & restore operations
   flags
     0x123456, 0xabcdef // you can define several offsets
 //      when patching, ORs value with whatever bytes are at the offset(s)

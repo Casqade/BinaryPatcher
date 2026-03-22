@@ -11,6 +11,7 @@
 #include <limits>
 #include <memory>
 #include <sstream>
+#include <unordered_map>
 
 
 class PatchFileParser
@@ -54,7 +55,7 @@ private:
   Patch::OperationModeOrder parseOperationOrder( std::istringstream& ) const;
 
   std::unique_ptr <Patch> parseBinaryEntry();
-  std::unique_ptr <Patch> parseFlagsEntry();
+  std::unique_ptr <Patch> parseFlagsEntry(const std::string& header);
   std::unique_ptr <Patch> parseMessageEntry();
   std::unique_ptr <Patch> parseStringEntry( const std::string& header );
   std::unique_ptr <Patch> parseNumberEntry( const std::string& header );
@@ -287,9 +288,19 @@ PatchFileParser::parseBinaryEntry()
 
 inline
 std::unique_ptr <Patch>
-PatchFileParser::parseFlagsEntry()
+PatchFileParser::parseFlagsEntry(const std::string& header)
 {
-  advance(); // skip "flags"
+  std::istringstream stream(header);
+  std::string keyword;
+  stream >> keyword; // "flags"
+
+  bool unset = false;
+
+  std::string extra;
+  if ( stream >> extra && extra == "unset" )
+    unset = true;
+
+  advance(); // skip header line
 
   skipEmptyAndComments();
   auto offsets = ParseOffsetList(currentLine());
@@ -320,7 +331,7 @@ PatchFileParser::parseFlagsEntry()
         " exceed executable size (" + std::to_string(mExecutableSize) + ")" );
 
   return std::make_unique <FlagsPatch> (
-    std::move(offsets), mask, byteWidth );
+    std::move(offsets), mask, byteWidth, unset );
 }
 
 inline
@@ -557,7 +568,7 @@ PatchFileParser::parseEntry()
     entry = parseBinaryEntry();
 
   else if ( keyword == "flags" )
-    entry = parseFlagsEntry();
+    entry = parseFlagsEntry(line);
 
   else if ( keyword == "message" )
     entry = parseMessageEntry();
