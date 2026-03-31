@@ -42,12 +42,12 @@ public:
       PromptNumber(mCurrentValue, mRangeMin, mRangeMax, mNumberName);
   }
 
-  void apply( std::fstream& file, OperationMode mode ) const override
+  void apply( std::iostream& stream, OperationMode mode ) const override
   {
     for ( auto offset : mOffsets )
     {
       Apply(
-        file, mode, offset,
+        stream, mode, offset,
         mOriginalValue.toBytes(),
         mCurrentValue.toBytes() );
     }

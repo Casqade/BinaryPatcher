@@ -27,7 +27,7 @@ public:
     , mUnset(unset)
   {}
 
-  void apply( std::fstream& file, OperationMode mode ) const override
+  void apply( std::iostream& stream, OperationMode mode ) const override
   {
     for ( auto offset : mOffsets )
     {
@@ -37,7 +37,7 @@ public:
 //        offset + sizeof(value) < executable size
 
       ReadBytes(
-        file, offset,
+        stream, offset,
         reinterpret_cast <char*> (&value),
         mByteCount );
 
@@ -62,7 +62,7 @@ public:
       }
 
       Apply(
-        file, offset,
+        stream, offset,
         ToBytes(value, mByteCount) );
     }
   }

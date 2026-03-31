@@ -41,12 +41,12 @@ struct PatchGroup
       entry->prompt();
   }
 
-  void apply( std::fstream& file ) const
+  void apply( std::iostream& stream ) const
   {
     if ( operationMode == Patch::OperationMode::Skip )
       return;
 
     for ( const auto& entry : entries )
-      entry->apply(file, operationMode);
+      entry->apply(stream, operationMode);
   }
 };

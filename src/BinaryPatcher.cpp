@@ -40,14 +40,25 @@ main(
     std::cout << "\n";
   }
 
-  PatchFileParser parser;
-  PatchFile patchFile;
 
   std::cout << "Parsing patch file '" + patchFilePath + "'\n\n";
 
+  std::ifstream file(patchFilePath);
+
+  if ( file.is_open() == false )
+  {
+    std::cout << "ERROR: Failed to open patch file '" << patchFilePath << "'\n\n";
+    waitForUserExit();
+    return ResultCode::ReadFileFailed;
+  }
+
+
+  PatchFile patchFile;
+  PatchFileParser parser;
+
   try
   {
-    patchFile = parser.parse(patchFilePath);
+    patchFile = parser.parse(file);
   }
   catch ( const std::exception& e )
   {
@@ -55,6 +66,9 @@ main(
     waitForUserExit();
     return ResultCode::ReadFileFailed;
   }
+
+  file.close();
+
 
   std::cout << "Enter path to " << patchFile.executableName
             << " or leave empty to use default ("

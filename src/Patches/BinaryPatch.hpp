@@ -24,12 +24,12 @@ public:
     , mModifiedBytes(std::move(modified))
   {}
 
-  void apply( std::fstream& file, OperationMode mode ) const override
+  void apply( std::iostream& stream, OperationMode mode ) const override
   {
     for ( auto offset : mOffsets )
     {
       Apply(
-        file, mode, offset,
+        stream, mode, offset,
         mOriginalBytes,
         mModifiedBytes );
     }

@@ -53,17 +53,17 @@ public:
       mStringName );
   }
 
-  void apply( std::fstream& file, OperationMode mode ) const override
+  void apply( std::iostream& stream, OperationMode mode ) const override
   {
     for ( auto offset : mOffsets )
     {
 //      clear with zeroes first
       Apply(
-        file, offset,
+        stream, offset,
         ByteSequence (mMaxLength, 0) );
 
       Apply(
-        file, mode, offset,
+        stream, mode, offset,
         ToBytes(mOriginalString),
         ToBytes(mReplacedString) );
     }

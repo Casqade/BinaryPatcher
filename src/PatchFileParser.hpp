@@ -30,7 +30,7 @@ class PatchFileParser
 
 public:
 
-  PatchFile parse( const std::string& filename );
+  PatchFile parse( std::istream& );
 
   const Patch::OperationModeOrder& operationOrder() const
   {
@@ -715,18 +715,12 @@ PatchFileParser::parseOperationOrder(
 inline
 PatchFile
 PatchFileParser::parse(
-  const std::string& filename )
+  std::istream& patchStream )
 {
   PatchFile result {};
 
-  std::ifstream file(filename);
-
-  if ( file.is_open() == false )
-    throw std::runtime_error("Failed to open file");
-
   std::string line;
-
-  while ( std::getline(file, line) )
+  while ( std::getline(patchStream, line) )
     mLines.push_back(line);
 
   mCurrentLine = 0;

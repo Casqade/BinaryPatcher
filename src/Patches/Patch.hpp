@@ -3,7 +3,7 @@
 #include "../NumberValue.hpp"
 
 #include <array>
-#include <fstream>
+#include <istream>
 #include <cstdint>
 #include <string>
 #include <vector>
@@ -30,16 +30,16 @@ public:
   virtual ~Patch() = default;
 
   virtual void prompt() {}
-  virtual void apply( std::fstream&, OperationMode ) const {}
+  virtual void apply( std::iostream&, OperationMode ) const {}
 
 
   static void Apply(
-    std::fstream& file,
+    std::ostream&,
     std::ios::off_type offset,
     const ByteSequence& bytes );
 
   static void Apply(
-    std::fstream& file,
+    std::ostream&,
     OperationMode mode,
     std::ios::off_type offset,
     const ByteSequence& originalBytes,
@@ -47,7 +47,7 @@ public:
 
 
   static void ReadBytes(
-    std::fstream& file,
+    std::istream&,
     std::ios::off_type offset,
     char* dst,
     size_t count );
@@ -84,13 +84,13 @@ public:
 inline
 void
 Patch::Apply(
-  std::fstream& file,
+  std::ostream& stream,
   std::ios::off_type offset,
   const ByteSequence& bytes )
 {
-  file.seekp( offset, std::ios::beg );
+  stream.seekp( offset, std::ios::beg );
 
-  file.write(
+  stream.write(
     reinterpret_cast <const char*> (bytes.data()),
     bytes.size() );
 }
@@ -98,29 +98,29 @@ Patch::Apply(
 inline
 void
 Patch::Apply(
-  std::fstream& file,
+  std::ostream& stream,
   OperationMode mode,
   std::ios::off_type offset,
   const ByteSequence& originalBytes,
   const ByteSequence& modifiedBytes )
 {
   if ( mode == OperationMode::Modify )
-    Apply(file, offset, modifiedBytes);
+    Apply(stream, offset, modifiedBytes);
 
   else if ( mode == OperationMode::Restore )
-    Apply(file, offset, originalBytes);
+    Apply(stream, offset, originalBytes);
 }
 
 inline
 void
 Patch::ReadBytes(
-  std::fstream& file,
+  std::istream& stream,
   std::ios::off_type offset,
   char* dst,
   size_t count )
 {
-  file.seekg( offset, std::ios::beg );
-  file.read( dst, count );
+  stream.seekg( offset, std::ios::beg );
+  stream.read( dst, count );
 }
 
 inline
