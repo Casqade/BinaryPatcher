@@ -1,0 +1,46 @@
+name: Build (macOS)
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - '**/README.md'
+      - '.github/workflows/ubuntu-build.yml'
+      - '.github/workflows/windows-build-msvc.yml'
+      - '.github/workflows/windows-build-msys2.yml'
+      - '**/reference.patch'
+
+  pull_request:
+
+jobs:
+  build-macos:
+    runs-on: ${{ matrix.config.os }}
+
+    strategy:
+      fail-fast: false
+
+      matrix:
+        build_type: ["Release"]
+        cmake_generator: ["Ninja"]
+
+        config:
+        - {
+            os: macos-latest,
+            cc: "clang",
+            cxx: "clang++"
+          }
+        - {
+            os: macos-latest,
+            cc: "gcc-13",
+            cxx: "g++-13"
+          }
+
+    steps:
+    - uses: actions/checkout@v4
+
+
+    - name: Build
+      run: |
+        cd ${{ github.workspace }}/src
+        ${{ matrix.config.cxx }} --std=c++17 BinaryPatcher.cpp
