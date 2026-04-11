@@ -42,5 +42,4 @@ jobs:
 
     - name: Build
       run: |
-        cd ${{ github.workspace }}/src
-        ${{ matrix.config.cxx }} --std=c++17 BinaryPatcher.cpp
+        ${{ matrix.config.cxx }} --std=c++17 ${{ github.workspace }}/src/BinaryPatcher.cpp
