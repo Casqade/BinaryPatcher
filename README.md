@@ -3,6 +3,8 @@
 [![Windows (MSVC)](https://github.com/Casqade/BinaryPatcher/actions/workflows/windows-build-msvc.yml/badge.svg)](https://github.com/Casqade/BinaryPatcher/actions/workflows/windows-build-msvc.yml)
 [![Windows (Clang)](https://github.com/Casqade/BinaryPatcher/actions/workflows/windows-build-clang.yml/badge.svg)](https://github.com/Casqade/BinaryPatcher/actions/workflows/windows-build-clang.yml)
 [![Windows (MSYS2)](https://github.com/Casqade/BinaryPatcher/actions/workflows/windows-build-msys2.yml/badge.svg)](https://github.com/Casqade/BinaryPatcher/actions/workflows/windows-build-msys2.yml)
+[![Ubuntu](https://github.com/Casqade/BinaryPatcher/actions/workflows/ubuntu-build.yml/badge.svg)](https://github.com/Casqade/BinaryPatcher/actions/workflows/ubuntu-build.yml)
+[![macOS](https://github.com/Casqade/BinaryPatcher/actions/workflows/macos-build.yml/badge.svg)](https://github.com/Casqade/BinaryPatcher/actions/workflows/macos-build.yml)
 [![GitHub Releases](https://img.shields.io/github/release/Casqade/BinaryPatcher.svg)](https://github.com/Casqade/BinaryPatcher/releases/latest)
 
 **A simple cross-platform tool that empowers users 
@@ -32,7 +34,7 @@ To avoid confusion, in this README it will be referenced as `BinaryPatcher.exe`.
 
 These steps demonstrate how to use BinaryPatcher on BF1942:
 
-1. Download the BinaryPatcher.exe tool from the [Releases](https://github.com/Casqade/BinaryPatcher/releases) section
+1. Download `BinaryPatcher.exe` from the [Releases](https://github.com/Casqade/BinaryPatcher/releases) section
 2. Download the .patch file created for your target binary (for BF1942.exe it's `BF1942.patch`)
 3. Drag and drop .patch file onto BinaryPatcher.exe
 4. Enter the file path to your target binary file (e.g. `D:\Battlefield1942\BF1942.exe`)
