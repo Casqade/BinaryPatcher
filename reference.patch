@@ -21,7 +21,7 @@ ReferencePatch
       12 34 56 // replaced bytes
 
 //  flags [unset]
-//  - unset mode is equivalent of swapping modify & restore operations
+//  - unset mode swaps modify & restore operations behaviour (OR/AND)
   flags
     0x123456, 0xabcdef // you can define several offsets
 //      when patching, ORs value with whatever bytes are at the offset(s)
